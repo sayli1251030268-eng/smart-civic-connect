@@ -12,6 +12,66 @@ import Admin from './pages/Admin.jsx';
 import Updates from './pages/Updates.jsx';
 import Representative from './pages/Representative.jsx';
 
+function ProfileStatusBanner() {
+  const { user, logout } = useAuth();
+  if (!user) {
+    return (
+      <div className="bg-slate-900 text-slate-300 px-4 py-1 text-xs border-b border-slate-800">
+        <div className="mx-auto max-w-6xl flex flex-wrap items-center justify-between gap-2">
+          <span className="text-slate-400">
+            👋 Not logged in. <Link to="/login" className="text-amber-400 underline font-semibold ml-1">Log in here</Link> as <b>Admin</b> or <b>Citizen</b> to manage & verify complaints.
+          </span>
+          <div className="flex items-center gap-2 text-[11px] text-slate-400">
+            <span>Admin: <code>admin@civic.local</code></span>
+            <span>•</span>
+            <span>Citizen: <code>user@gmail.com</code></span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`px-4 py-1.5 text-xs border-b ${
+      user.role === 'admin'
+        ? 'bg-amber-950/80 border-amber-800 text-amber-200'
+        : user.role === 'representative'
+        ? 'bg-blue-950/80 border-blue-800 text-blue-200'
+        : 'bg-emerald-950/80 border-emerald-800 text-emerald-200'
+    }`}>
+      <div className="mx-auto max-w-6xl flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span className="font-semibold text-white">Active Profile:</span>
+          <span className="px-2 py-0.5 rounded font-black text-xs uppercase tracking-wide bg-white/20 text-white">
+            {user.role === 'admin' ? '🛡️ Municipal Admin' : user.role === 'representative' ? '🏛️ Elected Representative' : '👤 Citizen'}
+          </span>
+          <span className="font-mono text-white/95 font-medium">({user.email})</span>
+          {user.ward && <span className="text-white/70">• Ward: <b>{user.ward}</b></span>}
+        </div>
+        <div className="flex items-center gap-3">
+          {user.role === 'admin' && (
+            <Link to="/admin" className="font-bold underline text-amber-300 hover:text-white">
+              Open Admin Portal →
+            </Link>
+          )}
+          {user.role === 'representative' && (
+            <Link to="/representative" className="font-bold underline text-blue-300 hover:text-white">
+              Open Rep Portal →
+            </Link>
+          )}
+          <button
+            onClick={logout}
+            className="text-xs font-bold text-red-300 hover:text-white underline cursor-pointer"
+          >
+            Log out / Switch Account
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Header() {
   const { user, logout } = useAuth();
   const { t, lang, setLanguage } = useTranslation();
@@ -74,31 +134,39 @@ function Header() {
         )}
         <Link to="/report" className="btn btn-primary !py-1.5 shadow-sm font-semibold">{t('report_issue')}</Link>
         {user ? (
-          <div className="flex items-center gap-1.5 sm:gap-2 pl-1.5 sm:pl-2 border-l border-white/20">
+          <div className="flex items-center gap-2 pl-2 border-l border-white/20">
             <div
-              className="flex items-center gap-1.5 sm:gap-2 rounded-lg bg-white/10 px-2 py-1 text-xs ring-1 ring-white/10"
-              title={`Logged in as: ${user.name || ''} (${user.email}) • Role: ${user.role}`}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold ring-1 shadow-sm ${
+                user.role === 'admin'
+                  ? 'bg-amber-500/25 text-amber-200 ring-amber-400/50'
+                  : user.role === 'representative'
+                  ? 'bg-blue-500/25 text-blue-200 ring-blue-400/50'
+                  : 'bg-emerald-500/25 text-emerald-200 ring-emerald-400/50'
+              }`}
+              title={`Logged in as: ${user.name || ''} (${user.email})`}
             >
-              <span className="grid h-6 w-6 place-items-center rounded-full bg-signal text-xs font-black text-ink shadow-sm shrink-0">
-                {user.name ? user.name.charAt(0).toUpperCase() : (user.email ? user.email.charAt(0).toUpperCase() : 'U')}
+              <span className="grid h-5 w-5 place-items-center rounded-full bg-signal text-[11px] font-black text-ink shadow-sm shrink-0">
+                {user.role === 'admin' ? 'A' : user.role === 'representative' ? 'R' : 'U'}
               </span>
-              <div className="hidden sm:block text-left leading-tight">
-                <span className="block font-bold text-white max-w-[110px] truncate">{user.name || user.email}</span>
-                <span className="block text-[10px] text-slate-300 font-medium">
-                  {user.role === 'admin' ? '🛡️ Admin' : user.role === 'representative' ? '🏛️ Rep' : '👤 Citizen'}
+              <div className="text-left leading-tight">
+                <span className="block font-black text-white text-[11px] max-w-[120px] truncate">
+                  {user.role === 'admin' ? '🛡️ Admin' : user.role === 'representative' ? '🏛️ Rep' : '👤 User'}
+                </span>
+                <span className="block text-[9px] text-slate-300 font-mono truncate max-w-[120px]">
+                  {user.email}
                 </span>
               </div>
             </div>
             <button
               onClick={logout}
-              className="rounded-md px-2 py-1.5 text-xs font-semibold text-slate-300 hover:bg-white/10 hover:text-white transition"
+              className="rounded-md bg-white/10 px-2.5 py-1.5 text-xs font-bold text-slate-200 hover:bg-red-600 hover:text-white transition"
               title="Sign out of this account"
             >
               {t('logout')}
             </button>
           </div>
         ) : (
-          <NavLink to="/login" className={link}>{t('login')}</NavLink>
+          <NavLink to="/login" className="btn btn-primary !py-1 text-xs font-bold">{t('login')}</NavLink>
         )}
       </div>
     </header>
@@ -114,6 +182,7 @@ function Private({ children }) {
 export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
+      <ProfileStatusBanner />
       <Header />
       <main className="mx-auto max-w-6xl px-4 py-6">
         <Routes>
