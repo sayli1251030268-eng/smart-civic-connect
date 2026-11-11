@@ -30,6 +30,16 @@ async def lifespan(app):
             db.add(User(name="Municipal Admin", email=settings.admin_email, role="admin",
                         is_verified=True, password_hash=hash_password(settings.admin_password)))
         db.commit()
+
+        # Auto-seed initial Pune complaints and demo accounts if database has no complaints
+        from .models import Complaint
+        if db.query(Complaint).count() == 0:
+            try:
+                import seed_data
+                seed_data.seed()
+                print("✓ Auto-seeded initial demo complaints and accounts on startup.")
+            except Exception as e:
+                print(f"Startup seed notice: {e}")
     if settings.ai_mode != "off":
         threading.Thread(target=ai.warmup, daemon=True).start()  # load model without blocking startup
     yield

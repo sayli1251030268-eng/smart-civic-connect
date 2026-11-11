@@ -8,12 +8,12 @@ from .models import (Complaint, Support, Like, Repost, Comment, Notification, St
 from .notifications import notify_user
 
 FLOW = {
-    "reported": ["under_review"],
-    "under_review": ["assigned"],
-    "assigned": ["in_progress"],
-    "in_progress": ["resolved_awaiting_verification"],
+    "reported": ["under_review", "assigned", "in_progress"],
+    "under_review": ["assigned", "in_progress", "reported"],
+    "assigned": ["in_progress", "under_review", "resolved_awaiting_verification", "verified_resolved"],
+    "in_progress": ["resolved_awaiting_verification", "verified_resolved", "assigned", "under_review"],
     "resolved_awaiting_verification": ["verified_resolved", "in_progress"],
-    "verified_resolved": ["in_progress"],  # reopen
+    "verified_resolved": ["in_progress", "under_review"],  # reopen
 }
 CATEGORIES = ["pothole", "garbage", "streetlight", "water_leakage", "drainage", "other"]
 

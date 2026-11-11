@@ -27,19 +27,20 @@ async def update_status(cid: int, status: str = Form(...), note: str = Form(""),
     c = db.get(Complaint, cid)
     if not c:
         raise HTTPException(404, "Complaint not found")
-    if status not in FLOW.get(c.status, []) or status == "verified_resolved":
-        raise HTTPException(400, f"Cannot move from '{c.status}' to '{status}'. Allowed: "
-                                 f"{[s for s in FLOW.get(c.status, []) if s != 'verified_resolved']}")
-    if status == "assigned":
-        if not department_id or not db.get(Department, department_id):
-            raise HTTPException(400, "Valid department_id required to assign")
+    allowed = FLOW.get(c.status, [])
+    if status not in allowed:
+        raise HTTPException(400, f"Cannot move from '{c.status}' to '{status}'. Allowed: {allowed}")
+    if department_id and db.get(Department, department_id):
         c.department_id = department_id
-    if status == "resolved_awaiting_verification":
+    elif status == "assigned" and not c.department_id:
+        first_dept = db.query(Department).first()
+        if first_dept:
+            c.department_id = first_dept.id
+    if status in ("resolved_awaiting_verification", "verified_resolved"):
         data = await read_image(after_image)
-        if not data:
-            raise HTTPException(400, "After-work photo is required to mark as resolved")
-        c.after_image_url = save_image(data, after_image.filename)
-        c.evidence_flag = check_evidence(c, data)
+        if data and after_image:
+            c.after_image_url = save_image(data, after_image.filename)
+            c.evidence_flag = check_evidence(c, data)
     set_status(db, c, status, user.id, note or None)
     db.commit()
     return serialize(db, c, user)

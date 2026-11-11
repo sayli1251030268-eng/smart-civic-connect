@@ -6,19 +6,21 @@ import { StatusChip } from '../components';
 import { CATS, STATUS, timeAgo, slaLabel } from '../lib';
 
 const NEXT = {
-  reported: ['under_review'],
-  under_review: ['assigned'],
-  assigned: ['in_progress'],
-  in_progress: ['resolved_awaiting_verification'],
-  resolved_awaiting_verification: ['in_progress'],
-  verified_resolved: ['in_progress'],
+  reported: ['under_review', 'assigned', 'in_progress'],
+  under_review: ['assigned', 'in_progress', 'reported'],
+  assigned: ['in_progress', 'resolved_awaiting_verification', 'verified_resolved', 'under_review'],
+  in_progress: ['resolved_awaiting_verification', 'verified_resolved', 'assigned', 'under_review'],
+  resolved_awaiting_verification: ['verified_resolved', 'in_progress'],
+  verified_resolved: ['in_progress', 'under_review'],
 };
 
 const ACTION = {
+  reported: 'Return to Reported',
   under_review: 'Start review',
   assigned: 'Assign to department',
   in_progress: 'Mark in progress',
-  resolved_awaiting_verification: 'Upload fix & request verification',
+  resolved_awaiting_verification: 'Mark resolved (request verification)',
+  verified_resolved: 'Mark verified & closed',
 };
 
 const hours = (h) => (h == null ? 'No data' : h < 48 ? `${h} h` : `${(h / 24).toFixed(1)} days`);
@@ -46,7 +48,10 @@ function ActionPanel({ c, deps, suggested, onDone }) {
     setNote('');
     setFile(null);
     setErr('');
-    setDept(c.department ? deps.find((d) => d.name === c.department)?.id || '' : suggested || '');
+    const defaultDept = c.department
+      ? deps.find((d) => d.name === c.department)?.id
+      : (suggested || (deps.length > 0 ? deps[0].id : ''));
+    setDept(defaultDept || '');
   }, [c.id, c.status, suggested, deps]);
 
   const submit = async (e) => {
@@ -102,11 +107,10 @@ function ActionPanel({ c, deps, suggested, onDone }) {
         </label>
       )}
 
-      {next === 'resolved_awaiting_verification' && (
+      {(next === 'resolved_awaiting_verification' || next === 'verified_resolved') && (
         <label className="block text-xs font-semibold text-slate-700">
-          Upload Completion Proof (After Photo)
+          Upload Completion Proof <span className="font-normal text-slate-400">(optional after-repair photo)</span>
           <input
-            required
             type="file"
             accept="image/jpeg,image/png,image/webp"
             onChange={(e) => setFile(e.target.files[0])}
@@ -143,22 +147,32 @@ export default function Admin() {
   const [deps, setDeps] = useState([]);
   const [reps, setReps] = useState([]);
   const [modQueue, setModQueue] = useState([]);
-  const [f, setF] = useState({ status: '', category: '', feed: 'trending' });
+  const [f, setF] = useState({ status: '', category: '', feed: 'all' });
   const [sel, setSel] = useState(null);
   const [detail, setDetail] = useState(null);
   const [ins, setIns] = useState(null);
   const [err, setErr] = useState('');
   const [actionNotice, setActionNotice] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadStats = () => api('/admin/analytics').then(setStats).catch((e) => setErr(e.message));
   const loadList = () => {
     const q = new URLSearchParams({ feed: f.feed, limit: 100 });
     if (f.status) q.set('status', f.status);
     if (f.category) q.set('category', f.category);
-    api(`/complaints?${q}`).then(setItems).catch((e) => setErr(e.message));
+    return api(`/complaints?${q}`).then(setItems).catch((e) => setErr(e.message));
   };
   const loadReps = () => api('/admin/representatives/pending').then(setReps).catch(() => {});
   const loadModeration = () => api('/admin/moderation').then(setModQueue).catch(() => {});
+
+  const handleManualRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.allSettled([loadStats(), loadList(), loadReps(), loadModeration()]);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -172,6 +186,16 @@ export default function Admin() {
     if (isAdmin) loadList();
   }, [isAdmin, f]);
 
+  // Periodic background refresh every 10 seconds so newly submitted citizen issues show up live
+  useEffect(() => {
+    if (!isAdmin) return;
+    const timer = setInterval(() => {
+      loadList();
+      loadStats();
+    }, 10000);
+    return () => clearInterval(timer);
+  }, [isAdmin, f]);
+
   useEffect(() => {
     if (sel) {
       api(`/complaints/${sel}`).then(setDetail).catch(() => {});
@@ -180,7 +204,7 @@ export default function Admin() {
       setDetail(null);
       setIns(null);
     }
-  }, [sel, items]);
+  }, [sel]);
 
   if (!ready) return null;
   if (!isAdmin) return <Navigate to="/" replace />;
@@ -188,9 +212,10 @@ export default function Admin() {
   const s = stats?.by_status || {};
   const open = (stats?.total || 0) - (s.verified_resolved || 0);
   const done = (u) => {
+    setItems((prev) => (prev ? prev.map((item) => (item.id === u.id ? { ...item, ...u } : item)) : prev));
+    setDetail((d) => ({ ...d, ...u }));
     loadList();
     loadStats();
-    setDetail((d) => ({ ...d, ...u }));
   };
 
   const verifyRep = async (id) => {
@@ -301,23 +326,35 @@ export default function Admin() {
       {tab === 'complaints' && (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_440px]">
           <section className="space-y-3">
-            <div className="flex flex-wrap gap-2">
-              <select className="field !w-auto text-xs" value={f.status} onChange={(e) => setF({ ...f, status: e.target.value })}>
-                <option value="">All Statuses</option>
-                {Object.entries(STATUS).map(([k, v]) => (
-                  <option key={k} value={k}>{v.label}</option>
-                ))}
-              </select>
-              <select className="field !w-auto text-xs" value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })}>
-                <option value="">All Categories</option>
-                {Object.entries(CATS).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
-              <select className="field !w-auto text-xs" value={f.feed} onChange={(e) => setF({ ...f, feed: e.target.value })}>
-                <option value="trending">Most Supported First</option>
-                <option value="all">Newest First</option>
-              </select>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-wrap gap-2">
+                <select className="field !w-auto text-xs" value={f.status} onChange={(e) => setF({ ...f, status: e.target.value })}>
+                  <option value="">All Statuses</option>
+                  {Object.entries(STATUS).map(([k, v]) => (
+                    <option key={k} value={k}>{v.label}</option>
+                  ))}
+                </select>
+                <select className="field !w-auto text-xs" value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })}>
+                  <option value="">All Categories</option>
+                  {Object.entries(CATS).map(([k, v]) => (
+                    <option key={k} value={k}>{v}</option>
+                  ))}
+                </select>
+                <select className="field !w-auto text-xs" value={f.feed} onChange={(e) => setF({ ...f, feed: e.target.value })}>
+                  <option value="all">Newest First</option>
+                  <option value="trending">Most Supported First</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                onClick={handleManualRefresh}
+                disabled={refreshing}
+                className="btn btn-secondary text-xs flex items-center gap-1.5"
+                title="Refresh complaints list"
+              >
+                <span className={refreshing ? 'inline-block animate-spin' : ''}>🔄</span>
+                {refreshing ? 'Refreshing…' : 'Refresh Data'}
+              </button>
             </div>
 
             <div className="overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm">
