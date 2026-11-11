@@ -2,7 +2,33 @@
 
 AI-powered community civic management platform connecting Citizens, Local Representatives, and Municipal Authorities.
 
+**Live Deployment (Render):** [https://smart-civic-connect-ob2z.onrender.com/](https://smart-civic-connect-ob2z.onrender.com/)  
+**Interactive API Documentation:** [https://smart-civic-connect-ob2z.onrender.com/docs](https://smart-civic-connect-ob2z.onrender.com/docs)  
 **Stack:** FastAPI (Python 3.12), SQLite / MySQL (SQLAlchemy 2.0), React 18, Tailwind CSS, Leaflet Maps, and PyTorch/CLIP AI layer.
+
+---
+
+## Evaluation Credentials
+
+For judges and evaluators reviewing the live platform:
+
+### 1. Municipal Administrator (Full Control)
+- **Email / Username:** `admin@civic.local`
+- **Password:** `Admin@12345`
+- **Dashboard URL:** `/admin` (or click "Dashboard" in header)
+- **Key Capabilities:** Review real-time KPIs, assign departments, inspect AI briefings, upload repair completion proof, run auto-escalation scans, and moderate reported abuse.
+
+### 2. Local Elected Representative (Nagarsevak / MLA)
+- **Email:** `nagarsevak.patil@pmc.gov.in`
+- **Password:** `Patil@12345`
+- **Ward:** Kothrud
+- **Portal URL:** `/representative` (or click "My portal" in header)
+- **Key Capabilities:** Filter ward complaints, officially escalate urgent delays to municipal heads, and post public development updates with before/after photos.
+
+### 3. Citizen / Resident
+- **Email:** `sayli@vit.edu`
+- **Password:** `Sayli@12345`
+- **Key Capabilities:** File complaints with GPS & photo, test AI duplicate prompts, support ("I face this too"), like, repost, comment, follow wards/issues, and verify resolved work with 1-5 star ratings.
 
 ---
 
