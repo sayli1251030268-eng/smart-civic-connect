@@ -66,14 +66,15 @@ def seed():
         db.add(admin)
         db.flush()
 
-    # Citizens
-    sayli = db.query(User).filter_by(email="sayli@vit.edu").first()
-    if not sayli:
-        sayli = User(name="Sayli Praghane", email="sayli@vit.edu",
-                     phone="+919307060293", role="citizen", ward="Kothrud", is_verified=True,
-                     password_hash=hash_password("Sayli@12345"))
-        db.add(sayli)
+    # Citizen User
+    user_demo = db.query(User).filter_by(email="user@gmail.com").first()
+    if not user_demo:
+        user_demo = User(name="User", email="user@gmail.com",
+                         phone="+919876543210", role="citizen", ward="Kothrud", is_verified=True,
+                         password_hash=hash_password("User@12345"))
+        db.add(user_demo)
         db.flush()
+    sayli = user_demo
 
     saumitra = db.query(User).filter_by(email="saumitra@vit.edu").first()
     if not saumitra:
@@ -261,7 +262,7 @@ def seed():
     db.commit()
     print("✓ Database successfully seeded with rich Pune civic data!")
     print("\nDemo Accounts Created:")
-    print("  1. Citizen:        sayli@vit.edu / Sayli@12345 (Ward: Kothrud)")
+    print("  1. Citizen:        user@gmail.com / User@12345 (Ward: Kothrud)")
     print("  2. Citizen:        saumitra@vit.edu / Saumitra@12345 (Ward: Shivajinagar)")
     print("  3. Representative: nagarsevak.patil@pmc.gov.in / Patil@12345 (Ward: Kothrud)")
     print("  4. Representative: nagarsevak.deshmukh@pmc.gov.in / Deshmukh@12345 (Ward: Shivajinagar)")

@@ -25,9 +25,9 @@ For judges and evaluators reviewing the live platform:
 - **Portal URL:** `/representative` (or click "My portal" in header)
 - **Key Capabilities:** Filter ward complaints, officially escalate urgent delays to municipal heads, and post public development updates with before/after photos.
 
-### 3. Citizen / Resident
-- **Email:** `sayli@vit.edu`
-- **Password:** `Sayli@12345`
+### 3. Citizen / Resident (User)
+- **Email / Username:** `user@gmail.com`
+- **Password:** `User@12345`
 - **Key Capabilities:** File complaints with GPS & photo, test AI duplicate prompts, support ("I face this too"), like, repost, comment, follow wards/issues, and verify resolved work with 1-5 star ratings.
 
 ---

@@ -53,7 +53,7 @@ def run_unified():
     print("\n  ✓ Frontend and Backend connected on: http://localhost:8000")
     print("  ✓ Documentation:                    http://localhost:8000/docs")
     print("\n  Demo Accounts:")
-    print("    • Citizen:        sayli@vit.edu / Sayli@12345 (Ward: Kothrud)")
+    print("    • Citizen:        user@gmail.com / User@12345")
     print("    • Representative: nagarsevak.patil@pmc.gov.in / Patil@12345")
     print("    • Administrator:  admin@civic.local / Admin@12345")
     print("\n  Press Ctrl+C to stop the server.\n" + "=" * 60 + "\n")
