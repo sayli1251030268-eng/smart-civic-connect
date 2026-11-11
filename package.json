@@ -1,0 +1,11 @@
+{
+  "name": "smart-civic-connect",
+  "version": "1.0.0",
+  "description": "Smart Civic Connect - AI-Powered Citizen & Municipal Platform",
+  "scripts": {
+    "start": "python3 run.py",
+    "dev": "python3 run.py --dev",
+    "test": "cd backend && pytest tests/test_civic.py",
+    "build": "cd frontend && npm run build"
+  }
+}

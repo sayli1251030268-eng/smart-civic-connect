@@ -1,0 +1,4 @@
+# Optional AI layer: pip install -r requirements-ai.txt  (first run downloads ~600 MB of CLIP weights)
+torch>=2.2
+transformers==4.44.2
+numpy<2
