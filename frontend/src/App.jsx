@@ -74,9 +74,29 @@ function Header() {
         )}
         <Link to="/report" className="btn btn-primary !py-1.5 shadow-sm font-semibold">{t('report_issue')}</Link>
         {user ? (
-          <button onClick={logout} className="rounded-md px-3 py-1.5 text-sm text-slate-300 hover:bg-white/10 hover:text-white">
-            {t('logout')}
-          </button>
+          <div className="flex items-center gap-1.5 sm:gap-2 pl-1.5 sm:pl-2 border-l border-white/20">
+            <div
+              className="flex items-center gap-1.5 sm:gap-2 rounded-lg bg-white/10 px-2 py-1 text-xs ring-1 ring-white/10"
+              title={`Logged in as: ${user.name || ''} (${user.email}) • Role: ${user.role}`}
+            >
+              <span className="grid h-6 w-6 place-items-center rounded-full bg-signal text-xs font-black text-ink shadow-sm shrink-0">
+                {user.name ? user.name.charAt(0).toUpperCase() : (user.email ? user.email.charAt(0).toUpperCase() : 'U')}
+              </span>
+              <div className="hidden sm:block text-left leading-tight">
+                <span className="block font-bold text-white max-w-[110px] truncate">{user.name || user.email}</span>
+                <span className="block text-[10px] text-slate-300 font-medium">
+                  {user.role === 'admin' ? '🛡️ Admin' : user.role === 'representative' ? '🏛️ Rep' : '👤 Citizen'}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={logout}
+              className="rounded-md px-2 py-1.5 text-xs font-semibold text-slate-300 hover:bg-white/10 hover:text-white transition"
+              title="Sign out of this account"
+            >
+              {t('logout')}
+            </button>
+          </div>
         ) : (
           <NavLink to="/login" className={link}>{t('login')}</NavLink>
         )}

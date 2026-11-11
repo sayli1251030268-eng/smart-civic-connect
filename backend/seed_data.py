@@ -263,10 +263,8 @@ def seed():
     print("✓ Database successfully seeded with rich Pune civic data!")
     print("\nDemo Accounts Created:")
     print("  1. Citizen:        user@gmail.com / User@12345 (Ward: Kothrud)")
-    print("  2. Citizen:        saumitra@vit.edu / Saumitra@12345 (Ward: Shivajinagar)")
-    print("  3. Representative: nagarsevak.patil@pmc.gov.in / Patil@12345 (Ward: Kothrud)")
-    print("  4. Representative: nagarsevak.deshmukh@pmc.gov.in / Deshmukh@12345 (Ward: Shivajinagar)")
-    print("  5. Municipal Admin:admin@civic.local / Admin@12345")
+    print("  2. Representative: nagarsevak.patil@pmc.gov.in / Patil@12345 (Ward: Kothrud)")
+    print("  3. Municipal Admin:admin@civic.local / Admin@12345")
     db.close()
 
 if __name__ == "__main__":

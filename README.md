@@ -68,7 +68,6 @@ For judges and evaluators reviewing the live platform:
 You do **not** need two terminals anymore. The frontend and backend are now unified into a single command:
 
 ```bash
-cd /Users/sayli/.gemini/antigravity/scratch/smart-civic-connect
 python3 run.py
 # Or: ./start.sh
 # Or: npm start
@@ -88,14 +87,14 @@ python3 run.py --dev
 ### Run End-to-End Test Suite
 ```bash
 cd backend
-PYTHONPATH=. /Users/sayli/venv/bin/pytest tests/test_civic.py
+PYTHONPATH=. pytest tests/test_civic.py
 ```
 *Covers authentication, duplicate detection, follows, moderation, SLA escalation, 5-star citizen verification, and receipts.*
 
 ### Run Load Testing Harness
 ```bash
 cd backend
-/Users/sayli/venv/bin/python load_test.py --concurrency 25 --requests 150
+python3 load_test.py --concurrency 25 --requests 150
 ```
 *Simulates 25 concurrent workers executing hundreds of requests, outputting RPS and latency percentiles (P50, P90, P95, P99).*
 

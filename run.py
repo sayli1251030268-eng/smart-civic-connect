@@ -22,12 +22,12 @@ FRONTEND_DIR = ROOT_DIR / "frontend"
 
 def find_python():
     candidates = [
-        "/Users/sayli/venv/bin/python",
         sys.executable,
         "python3",
+        "python",
     ]
     for c in candidates:
-        if os.path.exists(c):
+        if c and os.path.exists(c):
             return c
     return sys.executable
 
